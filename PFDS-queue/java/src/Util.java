@@ -18,4 +18,8 @@ public class Util {
         ret.addAll(lst.subList(1, lst.size()));
         return ret;
     }
+
+    public static <T> List<T> reverse(List<T> lst) {
+        return lst.stream().collect(LinkedList::new, (l, e) -> l.add(0, e), (l, subl) -> l.addAll(0, subl));
+    }
 }
