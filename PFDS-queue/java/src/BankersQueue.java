@@ -22,7 +22,8 @@ public class BankersQueue<T> implements Queue<T> {
         if (lenr <= lenf) {
             return new BankersQueue<>(lenf, f, lenr, r);
         } else {
-            var newf = f.subList(0, f.size());
+            var newf = new LinkedList();
+            newf.addAll(f);
             newf.addAll(r.stream().collect(LinkedList::new,
                     (l, e) -> l.add(0, e),
                     (l, subl) -> l.addAll(0, subl)));
