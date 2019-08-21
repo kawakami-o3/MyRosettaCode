@@ -39,6 +39,7 @@ public class Main {
         //Queue<Integer> queue = PhysicistsQueue.empty();
         //Queue<Integer> queue = HoodMelvilleQueue.empty();
         //Queue<Integer> queue = BootstrappedQueue.empty();
+        //Queue<Integer> queue = ImplicitQueue.empty();
         Queue<Integer> queue = ImplicitQueue.empty();
         //runBench(true, 5, queue);
         runBench(false, 5000, queue);
@@ -47,6 +48,19 @@ public class Main {
 
         // NOTE Only for ImplicitQueue
         runBench(false, 10000000, queue);
+        runBench(false, 20000000, queue);
+
+
+        queue = ImplicitStrictQueue.empty();
+        //runBench(true, 5, queue);
+        runBench(false, 5000, queue);
+        runBench(false, 10000, queue);
+        runBench(false, 20000, queue);
+
+        // NOTE Only for ImplicitQueue
+        runBench(false, 10000000, queue);
+        runBench(false, 20000000, queue);
+
 
         System.out.println(queue);
     }
