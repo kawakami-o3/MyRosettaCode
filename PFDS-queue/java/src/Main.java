@@ -50,7 +50,6 @@ public class Main {
         runBench(false, 10000000, queue);
         runBench(false, 20000000, queue);
 
-/*
         queue = ImplicitStrictQueue.empty();
         //runBench(true, 5, queue);
         runBench(false, 5000, queue);
@@ -60,7 +59,6 @@ public class Main {
         // NOTE Only for ImplicitQueue
         runBench(false, 10000000, queue);
         runBench(false, 20000000, queue);
-*/
 
         System.out.println(queue);
     }

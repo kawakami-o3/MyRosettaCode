@@ -1,3 +1,4 @@
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -5,21 +6,44 @@ import java.util.function.Function;
  */
 public class ImplicitQueue<T> implements Queue<T> {
 
-    private static class Lazy<T> {
+    private enum OpType {
+        None,
+        EnQueue,
+        DeQueue,
+    }
+    private static class Lazy<T extends Queue<V>, V> {
         final T queue;
-        final Function<T, T> fun;
+        final V value;
+        final OpType op;
 
-        Lazy(T queue, Function<T, T> fun) {
+        Lazy(T queue, V value, OpType op) {
             this.queue = queue;
-            this.fun = fun;
+            this.value = value;
+            this.op = op;
         }
 
-        static <T> Lazy<T> susp(T queue, Function<T, T> fun) {
-            return new Lazy<T>(queue, fun);
+        static <T extends Queue<V>, V> Lazy<T, V> wrap(T queue) {
+            return new Lazy<T, V>(queue, null, OpType.None);
+        }
+
+        static <T extends Queue<V>, V> Lazy<T, V> enQueue(T queue, V value) {
+            return new Lazy<T, V>(queue, value, OpType.EnQueue);
+        }
+
+        static <T extends Queue<V>, V> Lazy<T, V> deQueue(T queue) {
+            return new Lazy<T, V>(queue, null, OpType.DeQueue);
         }
 
         T force() {
-            return fun.apply(this.queue);
+            switch (this.op) {
+                case EnQueue:
+                    return (T) this.queue.enQueue(this.value);
+                case DeQueue:
+                    return (T) this.queue.deQueue();
+                case None:
+                default:
+                    return this.queue;
+            }
         }
     }
 
@@ -85,10 +109,10 @@ public class ImplicitQueue<T> implements Queue<T> {
 
     private final QueueType type;
     private final Digit<T> f;
-    private final Lazy<Queue<Pair<T>>> m;
+    private final Lazy<Queue<Pair<T>>, Pair<T>> m;
     private final Digit<T> r;
 
-    private ImplicitQueue(QueueType type, Digit<T> f, Lazy<Queue<Pair<T>>> m, Digit<T> r) {
+    private ImplicitQueue(QueueType type, Digit<T> f, Lazy<Queue<Pair<T>>, Pair<T>> m, Digit<T> r) {
         this.type = type;
         this.f = f;
         this.m = m;
@@ -99,7 +123,7 @@ public class ImplicitQueue<T> implements Queue<T> {
         return new ImplicitQueue<>(QueueType.Shallow, f, null, null);
     }
 
-    private static <T> ImplicitQueue<T> deep(Digit<T> f, Lazy<Queue<Pair<T>>> m, Digit<T> r) {
+    private static <T> ImplicitQueue<T> deep(Digit<T> f, Lazy<Queue<Pair<T>>, Pair<T>> m, Digit<T> r) {
         return new ImplicitQueue<>(QueueType.Deep, f, m, r);
     }
 
@@ -116,14 +140,14 @@ public class ImplicitQueue<T> implements Queue<T> {
         }
 
         if (this.type == QueueType.Shallow && this.f.type == DigitType.One) {
-            return deep(Digit.two(this.f.x, t), Lazy.susp(empty(), x -> x), Digit.zero());
+            return deep(Digit.two(this.f.x, t), Lazy.wrap(empty()), Digit.zero());
         }
 
         if (this.r.type == DigitType.Zero) {
             return deep(this.f, this.m, Digit.one(t));
         }
 
-        return deep(this.f, Lazy.susp(this.m.force(), x -> x.enQueue(Pair.create(this.r.x, t))), Digit.zero());
+        return deep(this.f, Lazy.enQueue(this.m.force(), Pair.create(this.r.x, t)), Digit.zero());
     }
 
     @Override
@@ -144,7 +168,7 @@ public class ImplicitQueue<T> implements Queue<T> {
         } else {
             var y = m.head().right;
             var z = m.head().left;
-            return deep(Digit.two(y, z), Lazy.susp(m, x -> x.deQueue()), this.r);
+            return deep(Digit.two(y, z), Lazy.deQueue(m), this.r);
         }
     }
 
