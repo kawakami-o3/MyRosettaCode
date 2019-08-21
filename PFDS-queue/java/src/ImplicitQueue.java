@@ -123,7 +123,6 @@ public class ImplicitQueue<T> implements Queue<T> {
             return deep(this.f, this.m, Digit.one(t));
         }
 
-        //return deep(this.f, Lazy.susp(m, m -> m.enQueue(Pair.create(this.r.x, t))), Digit.zero());
         return deep(this.f, Lazy.susp(this.m.force(), x -> x.enQueue(Pair.create(this.r.x, t))), Digit.zero());
     }
 
